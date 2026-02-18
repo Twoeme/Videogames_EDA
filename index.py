@@ -9,8 +9,7 @@ url = "games.csv"
 juegos = pd.read_csv(url)
 imagen= "dataset-cover.png"
 imagen1= plt.imread(imagen)
-plt.imshow(imagen1)
-plt.axis('off')
+
 ## Configuraciónn streamlit
 
 st.set_page_config(page_title="Video Games Dataset", page_icon=":video_game:", layout="centered")
@@ -23,4 +22,3 @@ with st.container():
     st.subheader("¿Qué es un videojuego?")
     st.markdown("Un videojuego es una forma de entretenimiento interactivo que se juega a través de una computadora, consola de videojuegos, dispositivo móvil u otras plataformas. Los videojuegos pueden variar en género, estilo y complejidad, y pueden incluir elementos como gráficos, sonido, narrativa y mecánicas de juego. Los jugadores pueden interactuar con el juego a través de controles físicos o virtuales, y el objetivo puede ser completar misiones, resolver acertijos, competir contra otros jugadores o simplemente disfrutar de la experiencia de juego.")
 
-print("Hello, World!")

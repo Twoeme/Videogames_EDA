@@ -1,0 +1,49 @@
+Estructura que deben replicar
+Pídeles que mantengan estas secciones (adaptando nombres de columnas):
+
+Portada
+
+Título del proyecto.
+
+Descripción breve del dataset.
+
+Objetivos del dashboard.
+
+Filtros globales
+
+Filtro de tiempo (año/fecha).
+
+Filtro de una métrica cuantitativa (rating, precio, ventas).
+
+Filtro de una categoría (género, país, producto).
+
+KPIs
+
+Total de registros (juegos, ventas, clientes…).
+
+Métrica principal promedio (rating medio, ingreso medio, etc.).
+
+Otra métrica relevante (nº reseñas, total ventas…).
+
+Vista de tabla
+
+Tabla con columnas clave.
+
+Selector de un registro para ver detalle (como tu “detalle de juego”).
+
+Gráficos
+
+Distribución de una variable numérica (histograma / bar chart).
+
+Evolución temporal (line chart por año/mes).
+
+Top categorías (bar chart de géneros/países/tipos).
+
+Conclusiones
+
+3–5 hallazgos clave del análisis.
+
+1–2 recomendaciones.
+
+
+

@@ -15,7 +15,9 @@ st.markdown("Proyecto de ciencia de datos utilizando Streamlit para analizar un 
 
 @st.cache_data
 
-##Lectura del dataset
+
+##---------------------------Lectura del dataset--------------------
+
 def cargar_datos():
     df = pd.read_csv("games.csv")
 
@@ -45,35 +47,75 @@ def cargar_datos():
     df['jugadores_activos'] = df['jugadores_activos'].astype(int)
 
     ## expansion de generos
+    
     generos_por_juego = df['generos'].astype(str).str.strip("[]").str.replace(",","", regex=False).str.split(", ")
     return df, generos_por_juego
 
 df, generos_por_juego = cargar_datos()
 
-##Imagen 
-imagen= "dataset-cover.png"
-imagen1= plt.imread(imagen)
-st.image(imagen1, width=700)
+##---------------------------Imagen----------------------------------------
+ 
+##imagen= "dataset-cover.png"
+##imagen1= plt.imread(imagen)
+##st.image(imagen1, width=700)
+
+##---------------------------Cuerpo del proyecto---------------------------
+if 'clicked' not in st.session_state:
+    st.session_state.clicked = False
+def filtrar_por_fecha_lanzamiento():
+    st.session_state.clicked = True
+
+if st.session_state.clicked:
+    with st.container():
+        st.subheader("Videojuego por año de lanzamiento")
+        st.selectbox("Seleccione Año de lanzamiento", options=df['fecha_de_lanzamiento'].dt.year.unique(), key="filtro_año")
+        ano_lanzamiento = df['fecha_de_lanzamiento'].dt.year
+        #generos_por_juego = df['generos'].astype(str).str.strip("[]").str.replace(",","", regex=False).str.split(", ")
+        juegos_por_fecha = df.loc[ano_lanzamiento == st.session_state.filtro_año, ['titulo', 'fecha_de_lanzamiento', 'generos']]
+        st.table(juegos_por_fecha)
+    
+if 'clicked2' not in st.session_state:
+    st.session_state.clicked2 = False
+def rating():
+    st.session_state.clicked2 = True
+
+if st.session_state.clicked2:
+    with st.container():
+        st.subheader("Top Categorias con mejor puntaje")
+        df['generos_por_juego'] = df['generos'].str.split(", ").str[0]
+        calificacion_por_genero = df.groupby('generos_por_juego')['calificacion'].mean().sort_values(ascending=False)
+        figura = go.Figure(data=[go.Bar(x=calificacion_por_genero.index, y=calificacion_por_genero.values)])
+        st.plotly_chart(figura)
+    
+
+sidebar = st.sidebar
+with sidebar:
+    st.header("Filtros")
+    st.markdown("Utilice los siguientes filtros para explorar el dataset de videojuegos:")
+    st.button("Juegos por año de lanzamiento", on_click=filtrar_por_fecha_lanzamiento)
+    st.button("Categorias con mejor puntaje", on_click=rating)
+
+    st.markdown('Filtros de tiempo')
 ## Año de lanzamienton numero de titulos
-ano_lanzamiento = df['fecha_de_lanzamiento'].dt.year
-juegos_por_fecha = df.groupby(ano_lanzamiento)["titulo"].count().sort_values(ascending=False)
-col1, col2 = st.columns(2)
-with col1:
-    st.selectbox("Seleccione el año de lanzamiento", options=juegos_por_fecha.index.unique(), key="fecha_lanzamiento")
-    st.write(f"En el año {st.session_state.fecha_lanzamiento} se lanzaron {juegos_por_fecha[st.session_state.fecha_lanzamiento]} juegos.")
+
+
+#col1, col2 = st.columns(2)
+#with col1:
+  #  st.selectbox("Seleccione el año de lanzamiento", options=juegos_por_fecha.index.unique(), key="fecha_lanzamiento")
+ #   st.write(f"En el año {st.session_state.fecha_lanzamiento} se lanzaron {juegos_por_fecha[st.session_state.fecha_lanzamiento]} juegos.")
 ## Generos de los juegos
-with col2:
-    st.selectbox("Seleccione un juego", options=df['titulo'].unique(), key="juegos_genero")
-    comparar_index = df[df['titulo'] == st.session_state.juegos_genero].index[0]
-    generos_juego = generos_por_juego[comparar_index]
-    st.write(f"Los generos de juego son: {', '.join(generos_juego).replace("'","")}")
+#with col2:
+  #  st.selectbox("Seleccione un juego", options=df['titulo'].unique(), key="juegos_genero")
+   # comparar_index = df[df['titulo'] == st.session_state.juegos_genero].index[0]
+   # generos_juego = generos_por_juego[comparar_index]
+   # st.write(f"Los generos de juego son: {', '.join(generos_juego).replace("'","")}")
 
 
-with st.container():
-    st.subheader("Categorias con mejor puntaje")
-    categorias_calificacion = df.groupby("generos")["calificacion"].mean().sort_values(ascending=False).head(10)
-    fig = go.Figure(data=[go.Bar(x=categorias_calificacion.index, y=categorias_calificacion.values)])
-    st.plotly_chart(fig)
+#with st.container():
+    #st.subheader("Categorias con mejor puntaje")
+    #categorias_calificacion = df.groupby("generos")["calificacion"].mean().sort_values(ascending=False).head(10)
+    #fig = go.Figure(data=[go.Bar(x=categorias_calificacion.index, y=categorias_calificacion.values)])
+    #st.plotly_chart(fig)
 
 ##with st.container():
    ## st.subheader("¿Qué es un videojuego?")

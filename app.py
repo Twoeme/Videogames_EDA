@@ -64,6 +64,7 @@ if 'clicked' not in st.session_state:
     st.session_state.clicked = False
 def filtrar_por_fecha_lanzamiento():
     st.session_state.clicked = True
+    st.session_state.clicked2 = False
 
 if st.session_state.clicked:
     with st.container():
@@ -73,10 +74,11 @@ if st.session_state.clicked:
         #generos_por_juego = df['generos'].astype(str).str.strip("[]").str.replace(",","", regex=False).str.split(", ")
         juegos_por_fecha = df.loc[ano_lanzamiento == st.session_state.filtro_año, ['titulo', 'fecha_de_lanzamiento', 'generos']]
         st.table(juegos_por_fecha)
-    
+
 if 'clicked2' not in st.session_state:
     st.session_state.clicked2 = False
 def rating():
+    st.session_state.clicked = False 
     st.session_state.clicked2 = True
 
 if st.session_state.clicked2:

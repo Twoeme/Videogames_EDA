@@ -10,11 +10,9 @@ import streamlit as st
 
 ## Configuración de la página
 st.set_page_config(page_title="Analisis de Videojuegos", page_icon=":video_game:", layout="wide")
-st.title("Analisis de Videojuegos", text_alignment="center")
-st.markdown("Proyecto de ciencia de datos utilizando Streamlit para analizar un dataset de videojuegos. El objetivo es explorar las tendencias en la industria de los videojuegos, identificar patrones de éxito y fracaso, y comprender las preferencias de los jugadores a través de visualizaciones interactivas y análisis de datos.")
+
 
 @st.cache_data
-
 
 ##---------------------------Lectura del dataset--------------------
 
@@ -53,11 +51,11 @@ def cargar_datos():
 
 df, generos_por_juego = cargar_datos()
 
-##---------------------------Imagen----------------------------------------
- 
-##imagen= "dataset-cover.png"
-##imagen1= plt.imread(imagen)
-##st.image(imagen1, width=700)
+##---------------------------Titulo----------------------------------------
+
+st.title("Analisis de Videojuegos", text_alignment="center")
+st.markdown("Proyecto de ciencia de datos utilizando Streamlit para analizar un dataset de videojuegos. El objetivo es explorar las tendencias en la industria de los videojuegos, identificar patrones de éxito y fracaso, y comprender las preferencias de los jugadores a través de visualizaciones interactivas y análisis de datos.") 
+st.image("dataset-cover.png", width="stretch")
 
 ##---------------------------Cuerpo del proyecto---------------------------
 if 'clicked' not in st.session_state:
@@ -84,20 +82,23 @@ def rating():
 if st.session_state.clicked2:
     with st.container():
         st.subheader("Top Categorias con mejor puntaje")
-        df['generos_por_juego'] = df['generos'].str.split(", ").str[0]
-        calificacion_por_genero = df.groupby('generos_por_juego')['calificacion'].mean().sort_values(ascending=False)
-        figura = go.Figure(data=[go.Bar(x=calificacion_por_genero.index, y=calificacion_por_genero.values)])
+        st.slider("Seleccione el número de categorias a mostrar", min_value=1, max_value=20, value=5, key="num_categorias") 
+        df['generos_por_juego'] = df['generos'].str.strip("[]").str.strip("'").str.split(", ").str[0]
+        df['generos_por_juego'] = df['generos_por_juego'].replace('', np.nan)
+        calificacion_por_genero = df[df['generos_por_juego'].notna()].groupby('generos_por_juego')['calificacion'].mean().sort_values(ascending=False)
+        figura = go.Figure(data=[go.Bar(x=calificacion_por_genero.index[:st.session_state.num_categorias], y=calificacion_por_genero.values[:st.session_state.num_categorias])])
         st.plotly_chart(figura)
     
 
 sidebar = st.sidebar
 with sidebar:
+    st.button("Inicio", on_click=lambda: st.session_state.update({"clicked": False, "clicked2": False}))
     st.header("Filtros")
-    st.markdown("Utilice los siguientes filtros para explorar el dataset de videojuegos:")
+    st.markdown("Utilice los siguientes Botones para explorar el dataset de videojuegos:")
     st.button("Juegos por año de lanzamiento", on_click=filtrar_por_fecha_lanzamiento)
     st.button("Categorias con mejor puntaje", on_click=rating)
 
-    st.markdown('Filtros de tiempo')
+    #st.markdown('Filtros de tiempo')
 ## Año de lanzamienton numero de titulos
 
 

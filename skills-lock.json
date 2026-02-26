@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "plotly-chart-generator": {
+      "source": "jeremylongshore/claude-code-plugins-plus-skills",
+      "sourceType": "github",
+      "computedHash": "2f03a3395bcdce7f7a76d19e4c70b607dae9f87dbe5d62773efe25a8039d0107"
+    }
+  }
+}

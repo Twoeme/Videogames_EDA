@@ -52,19 +52,28 @@ def cargar_datos():
 df, generos_por_juego = cargar_datos()
 
 ##---------------------------Titulo----------------------------------------
-
-st.title("Analisis de Videojuegos", text_alignment="center")
-st.markdown("Proyecto de ciencia de datos utilizando Streamlit para analizar un dataset de videojuegos. El objetivo es explorar las tendencias en la industria de los videojuegos, identificar patrones de éxito y fracaso, y comprender las preferencias de los jugadores a través de visualizaciones interactivas y análisis de datos.") 
-st.image("dataset-cover.png", width="stretch")
+if 'inicioseccion' not in st.session_state:
+    st.session_state.inicioseccion = True
+def inicio():
+    st.session_state.inicioseccion = True
+    st.session_state.por_anio = False
+    st.session_state.por_rating = False
+if st.session_state.inicioseccion:
+    st.title("Analisis de Videojuegos", text_alignment="center")
+    st.markdown("Proyecto de ciencia de datos utilizando Streamlit para analizar un dataset de videojuegos. El objetivo es explorar las tendencias en la industria de los videojuegos, identificar patrones de éxito y fracaso, y comprender las preferencias de los jugadores a través de visualizaciones interactivas y análisis de datos.") 
+    st.image("dataset-cover.png", width="stretch")
 
 ##---------------------------Cuerpo del proyecto---------------------------
-if 'clicked' not in st.session_state:
-    st.session_state.clicked = False
-def filtrar_por_fecha_lanzamiento():
-    st.session_state.clicked = True
-    st.session_state.clicked2 = False
 
-if st.session_state.clicked:
+##---------------------------Juegos por año tabla---------------------------
+if 'por_anio' not in st.session_state:
+    st.session_state.por_anio = False
+def filtrar_por_fecha_lanzamiento():
+    st.session_state.por_anio = True
+    st.session_state.por_rating = False
+    st.session_state.inicioseccion = False 
+
+if st.session_state.por_anio:
     with st.container():
         st.subheader("Videojuego por año de lanzamiento")
         st.selectbox("Seleccione Año de lanzamiento", options=df['fecha_de_lanzamiento'].dt.year.unique(), key="filtro_año")
@@ -73,13 +82,16 @@ if st.session_state.clicked:
         juegos_por_fecha = df.loc[ano_lanzamiento == st.session_state.filtro_año, ['titulo', 'fecha_de_lanzamiento', 'generos']]
         st.table(juegos_por_fecha)
 
-if 'clicked2' not in st.session_state:
-    st.session_state.clicked2 = False
-def rating():
-    st.session_state.clicked = False 
-    st.session_state.clicked2 = True
+##---------------------------Pagina rating---------------------------
 
-if st.session_state.clicked2:
+if 'por_rating' not in st.session_state:
+    st.session_state.por_rating = False
+def rating():
+    st.session_state.por_anio = False
+    st.session_state.por_rating = True
+    st.session_state.inicioseccion = False
+
+if st.session_state.por_rating:
     with st.container():
         st.subheader("Top Categorias con mejor puntaje")
         st.slider("Seleccione el número de categorias a mostrar", min_value=1, max_value=20, value=5, key="num_categorias") 
@@ -88,15 +100,54 @@ if st.session_state.clicked2:
         calificacion_por_genero = df[df['generos_por_juego'].notna()].groupby('generos_por_juego')['calificacion'].mean().sort_values(ascending=False)
         figura = go.Figure(data=[go.Bar(x=calificacion_por_genero.index[:st.session_state.num_categorias], y=calificacion_por_genero.values[:st.session_state.num_categorias])])
         st.plotly_chart(figura)
-    
 
+##---------------------------Jugadores Totales vs Activos---------------------------
+
+if 'jugadoresactivos' not in st.session_state:
+    st.session_state.jugadoresactivos = False
+def jugadores_totales_vs_activos():
+    st.session_state.por_anio = False
+    st.session_state.por_rating = False
+    st.session_state.inicioseccion = False
+    st.session_state.jugadoresactivos = True
+
+if st.session_state.jugadoresactivos:    
+    fig = go.Figure()
+    jugadores_totales= df.groupby(df['fecha_de_lanzamiento'].dt.year)['jugadores_totales'].mean().reset_index()
+    fig.add_trace(go.Scatter(x=jugadores_totales['fecha_de_lanzamiento'], y=jugadores_totales['jugadores_totales'], name='Jugadores Totales'))
+    jugadores_activos= df.groupby(df['fecha_de_lanzamiento'].dt.year)['jugadores_activos'].mean().reset_index()
+    fig.add_trace(go.Scatter(x=jugadores_activos['fecha_de_lanzamiento'], y=jugadores_activos['jugadores_activos'], name='Jugadores Activos'))
+    fig.update_layout(title='Jugadores Totales vs Jugadores Activos por Año de Lanzamiento', xaxis_title='Año de Lanzamiento', yaxis_title='Número de Jugadores')
+    st.plotly_chart(fig)
+
+##---------------------------Distribución de géneros por año---------------------------
+if 'generos_por_año' not in st.session_state:
+    st.session_state.generos_por_año = False
+def generos_por_año():
+    st.session_state.por_anio = False
+    st.session_state.por_rating = False
+    st.session_state.inicioseccion = False
+    st.session_state.jugadoresactivos = False
+    st.session_state.generos_por_año = True
+
+if st.session_state.generos_por_año:   
+    df['generos_por_juego'] = df['generos'].str.strip("[]").str.strip("'").str.split(", ").str[0]
+    df['generos_por_juego'] = df['generos_por_juego'].replace('', np.nan)
+    lanzamiento_de_genero_por_año = df.groupby([df['fecha_de_lanzamiento'].dt.year, df['generos_por_juego']]).size().reset_index(name='conteo')
+    st.selectbox("Seleccione año de lanzamiento", options=lanzamiento_de_genero_por_año['fecha_de_lanzamiento'].unique(), index=lanzamiento_de_genero_por_año['fecha_de_lanzamiento'].unique().tolist().index(2020), key="filtro_año_genero")
+    fig = go.Figure()
+    fig.add_trace(go.Pie(labels=lanzamiento_de_genero_por_año[lanzamiento_de_genero_por_año['fecha_de_lanzamiento'] == st.session_state.filtro_año_genero]['generos_por_juego'], values=lanzamiento_de_genero_por_año[lanzamiento_de_genero_por_año['fecha_de_lanzamiento'] == st.session_state.filtro_año_genero]['conteo']))
+    fig.update_layout(title='Distribución de géneros por año de lanzamiento')
+    st.plotly_chart(fig)
+##---------------------------Barra lateral---------------------------
 sidebar = st.sidebar
 with sidebar:
-    st.button("Inicio", on_click=lambda: st.session_state.update({"clicked": False, "clicked2": False}))
-    st.header("Filtros")
+    st.button("Inicio", on_click=inicio)
     st.markdown("Utilice los siguientes Botones para explorar el dataset de videojuegos:")
     st.button("Juegos por año de lanzamiento", on_click=filtrar_por_fecha_lanzamiento)
     st.button("Categorias con mejor puntaje", on_click=rating)
+    st.button("Jugadores totales vs activos", on_click=jugadores_totales_vs_activos)
+    st.button("Distribución de géneros por año", on_click=generos_por_año)
 
     #st.markdown('Filtros de tiempo')
 ## Año de lanzamienton numero de titulos
@@ -123,5 +174,4 @@ with sidebar:
 ##with st.container():
    ## st.subheader("¿Qué es un videojuego?")
     ##st.markdown("Un videojuego es una forma de entretenimiento interactivo que se juega a través de una computadora, consola de videojuegos, dispositivo móvil u otras plataformas. Los videojuegos pueden variar en género, estilo y complejidad, y pueden incluir elementos como gráficos, sonido, narrativa y mecánicas de juego. Los jugadores pueden interactuar con el juego a través de controles físicos o virtuales, y el objetivo puede ser completar misiones, resolver acertijos, competir contra otros jugadores o simplemente disfrutar de la experiencia de juego.")
-
 

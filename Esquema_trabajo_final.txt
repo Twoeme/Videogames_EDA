@@ -6,9 +6,9 @@ Portada
 
 Objetivos del dashboard.*
 --Filtros globales
----Filtro de tiempo (año/fecha).
----Filtro de una métrica cuantitativa (rating, precio, ventas).
----Filtro de una categoría (género, país, producto).
+./--Filtro de tiempo (año/fecha). 
+./--Filtro de una métrica cuantitativa (rating, precio, ventas).
+./-Filtro de una categoría (género, país, producto).
 
 KPIs
 ---Total de registros (juegos, ventas, clientes…).
@@ -19,7 +19,7 @@ Vista de tabla
 ---Tabla con columnas clave.
 ---Selector de un registro para ver detalle (como tu “detalle de juego”).
 
-Gráficos
+**Gráficos**
 ---Distribución de una variable numérica (histograma / bar chart).
 ---Evolución temporal (line chart por año/mes).
 ---Top categorías (bar chart de géneros/países/tipos).

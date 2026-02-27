@@ -20,8 +20,8 @@ def cargar_datos():
     df = pd.read_csv("games.csv")
 
     ## Limpieza y transformacion de datos
-    df.drop(columns=["Unnamed: 0", "Summary", "Backlogs","Wishlist","Reviews"], inplace=True)
-    df.rename(columns={"Title":"titulo", "Release Date":"fecha_de_lanzamiento", "Team":"equipo", "Rating":"calificacion","Times Listed":"veces_mencionadas","Number of Reviews":"numero_de_resenas","Genres":"generos","Plays":"jugadores_totales","Playing":"jugadores_activos"}, inplace=True)
+    df.drop(columns=["Unnamed: 0", "Backlogs","Wishlist","Reviews"], inplace=True)
+    df.rename(columns={"Title":"titulo", "Release Date":"fecha_de_lanzamiento", "Team":"equipo", "Rating":"calificacion","Times Listed":"veces_mencionadas","Number of Reviews":"numero_de_resenas","Genres":"generos","Plays":"jugadores_totales","Playing":"jugadores_activos","Summary":"resumen"}, inplace=True)
     df.drop_duplicates(inplace=True)
     df['equipo'].fillna(value="Hitsuji", inplace=True)
     df.dropna(subset=["calificacion"], inplace=True)
@@ -58,6 +58,10 @@ def inicio():
     st.session_state.inicioseccion = True
     st.session_state.por_anio = False
     st.session_state.por_rating = False
+    st.session_state.jugadoresactivos = False
+    st.session_state.generos_por_año = False
+    st.session_state.titulo_de_juego = False
+
 if st.session_state.inicioseccion:
     st.title("Analisis de Videojuegos", text_alignment="center")
     st.markdown("Proyecto de ciencia de datos utilizando Streamlit para analizar un dataset de videojuegos. El objetivo es explorar las tendencias en la industria de los videojuegos, identificar patrones de éxito y fracaso, y comprender las preferencias de los jugadores a través de visualizaciones interactivas y análisis de datos.") 
@@ -72,12 +76,16 @@ def filtrar_por_fecha_lanzamiento():
     st.session_state.por_anio = True
     st.session_state.por_rating = False
     st.session_state.inicioseccion = False 
+    st.session_state.jugadoresactivos = False
+    st.session_state.generos_por_año = False
+    st.session_state.titulo_de_juego = False
 
 if st.session_state.por_anio:
     with st.container():
         st.subheader("Videojuego por año de lanzamiento")
-        st.selectbox("Seleccione Año de lanzamiento", options=df['fecha_de_lanzamiento'].dt.year.unique(), key="filtro_año")
+        st.selectbox("Seleccione Año de lanzamiento", options=df['fecha_de_lanzamiento'].dt.year.unique(), key="filtro_año") 
         ano_lanzamiento = df['fecha_de_lanzamiento'].dt.year
+        st.write(f"En el año {st.session_state.filtro_año} se lanzaron {ano_lanzamiento[ano_lanzamiento == st.session_state.filtro_año].count()} juegos.")
         #generos_por_juego = df['generos'].astype(str).str.strip("[]").str.replace(",","", regex=False).str.split(", ")
         juegos_por_fecha = df.loc[ano_lanzamiento == st.session_state.filtro_año, ['titulo', 'fecha_de_lanzamiento', 'generos']]
         st.table(juegos_por_fecha)
@@ -90,7 +98,9 @@ def rating():
     st.session_state.por_anio = False
     st.session_state.por_rating = True
     st.session_state.inicioseccion = False
-
+    st.session_state.jugadoresactivos = False
+    st.session_state.generos_por_año = False
+    st.session_state.titulo_de_juego = False
 if st.session_state.por_rating:
     with st.container():
         st.subheader("Top Categorias con mejor puntaje")
@@ -110,6 +120,8 @@ def jugadores_totales_vs_activos():
     st.session_state.por_rating = False
     st.session_state.inicioseccion = False
     st.session_state.jugadoresactivos = True
+    st.session_state.generos_por_año = False    
+    st.session_state.titulo_de_juego = False
 
 if st.session_state.jugadoresactivos:    
     fig = go.Figure()
@@ -129,6 +141,7 @@ def generos_por_año():
     st.session_state.inicioseccion = False
     st.session_state.jugadoresactivos = False
     st.session_state.generos_por_año = True
+    st.session_state.titulo_de_juego = False
 
 if st.session_state.generos_por_año:   
     df['generos_por_juego'] = df['generos'].str.strip("[]").str.strip("'").str.split(", ").str[0]
@@ -139,10 +152,58 @@ if st.session_state.generos_por_año:
     fig.add_trace(go.Pie(labels=lanzamiento_de_genero_por_año[lanzamiento_de_genero_por_año['fecha_de_lanzamiento'] == st.session_state.filtro_año_genero]['generos_por_juego'], values=lanzamiento_de_genero_por_año[lanzamiento_de_genero_por_año['fecha_de_lanzamiento'] == st.session_state.filtro_año_genero]['conteo']))
     fig.update_layout(title='Distribución de géneros por año de lanzamiento')
     st.plotly_chart(fig)
+##---------------------------Distribución de géneros por año---------------------------
+if 'titulo_de_juego' not in st.session_state:
+    st.session_state.titulo_de_juego = False
+
+def titulo_de_juego():
+    st.session_state.por_anio = False
+    st.session_state.por_rating = False
+    st.session_state.inicioseccion = False
+    st.session_state.jugadoresactivos = False
+    st.session_state.generos_por_año = False
+    st.session_state.titulo_de_juego = True
+
+if st.session_state.titulo_de_juego:  
+    st.subheader("Información detallada del juego")
+    juego_escogido = st.session_state.busqueda_juego
+    df_juego = df[df['titulo'].str.contains(juego_escogido, case=False, na=False)]
+    df_juego['equipo'] = df_juego['equipo'].str.strip("[]").str.strip("'").str.split(", ").str[0]
+    df_juego['generos'] = df_juego['generos'].str.strip("[]").str.strip("'").str.split(", ")
+    if df_juego.empty:
+        st.write("No se encontró ningún juego con ese título.") 
+    else: 
+        tabla = go.Figure(data=[go.Table(header=dict(values=list(df_juego[['titulo', 'resumen', 'fecha_de_lanzamiento', 'equipo', 'generos', 'jugadores_activos', 'calificacion']].columns.str.capitalize().str.replace('_', ' ')),fill_color='gray', font=dict(size=18), align='center'), cells=dict(values=[df_juego['titulo'], df_juego['resumen'],df_juego['fecha_de_lanzamiento'],df_juego['equipo'], df_juego['generos'],df_juego['jugadores_activos'], df_juego['calificacion']],fill_color="white", font=dict(size=16,color='black'), align='left'))])
+        st.plotly_chart(tabla)
+##---------------------------Conclusiones--------------------------
+if 'conclusiones' not in st.session_state:
+    st.session_state.conclusiones = False
+
+def conclusiones():
+    st.session_state.por_anio = False
+    st.session_state.por_rating = False
+    st.session_state.inicioseccion = False
+    st.session_state.jugadoresactivos = False
+    st.session_state.generos_por_año = False
+    st.session_state.titulo_de_juego = False
+    st.session_state.conclusiones = True
+
+if st.session_state.conclusiones:  
+    st.subheader("Conclusiones")
+    st.markdown("1. La industria de los juegos a ido creciendo en cantidad de titulos lanzados por año." \
+    "2. Las categorias con mejores puntajes serian Musica, Point and click y plataformas." \
+    "3. Se detecto un gran pico de jugadores activos entre el año 2020 y 2021, que podria estar asociado a la pandemia, los jugadores totales han aumentado exponencialmente durante los ultimos años, han aumentado el numero de juegos y sus categorias." \
+    "4. Uno genero mas populares de los videojuegos es el genero de aventura, los demas generos tienen sus subidas y bajadas dependiendo del año."
+    )
+    st.subheader("Recomendaciones")
+    st.markdown("1. El mundo de los videojuegos ha ido ampliando, entonces no es estatico, por lo tal probar diferentes generos y estilos de juegos, es algo que puede llegar a ser valioso en la industria." \
+                "2. Los juegos de aventura son los mas populares al pasar de los tiempo, por lo tanto, es uno de los generos que puede ser importante impactar.")
 ##---------------------------Barra lateral---------------------------
 sidebar = st.sidebar
 with sidebar:
     st.button("Inicio", on_click=inicio)
+    st.text_input("Busca un juego por su título", key="busqueda_juego")
+    st.button("Información detallada del juego", on_click=titulo_de_juego)
     st.markdown("Utilice los siguientes Botones para explorar el dataset de videojuegos:")
     st.button("Juegos por año de lanzamiento", on_click=filtrar_por_fecha_lanzamiento)
     st.button("Categorias con mejor puntaje", on_click=rating)

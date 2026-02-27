@@ -190,14 +190,14 @@ def conclusiones():
 
 if st.session_state.conclusiones:  
     st.subheader("Conclusiones")
-    st.markdown("1. La industria de los juegos a ido creciendo en cantidad de titulos lanzados por año." \
-    "2. Las categorias con mejores puntajes serian Musica, Point and click y plataformas." \
-    "3. Se detecto un gran pico de jugadores activos entre el año 2020 y 2021, que podria estar asociado a la pandemia, los jugadores totales han aumentado exponencialmente durante los ultimos años, han aumentado el numero de juegos y sus categorias." \
+    st.html("<h3>1. La industria de los juegos a ido creciendo en cantidad de titulos lanzados por año. <br>"
+    "2. Las categorias con mejores puntajes serian Musica, Point and click y plataformas. <br>"
+    "3. Se detecto un gran pico de jugadores activos entre el año 2020 y 2021, que podria estar asociado a la pandemia, los jugadores totales han aumentado exponencialmente durante los ultimos años, han aumentado el numero de juegos y sus categorias. <br>"
     "4. Uno genero mas populares de los videojuegos es el genero de aventura, los demas generos tienen sus subidas y bajadas dependiendo del año."
     )
     st.subheader("Recomendaciones")
-    st.markdown("1. El mundo de los videojuegos ha ido ampliando, entonces no es estatico, por lo tal probar diferentes generos y estilos de juegos, es algo que puede llegar a ser valioso en la industria." \
-                "2. Los juegos de aventura son los mas populares al pasar de los tiempo, por lo tanto, es uno de los generos que puede ser importante impactar.")
+    st.html("<h3>1. El mundo de los videojuegos ha ido ampliando, entonces no es estatico, por lo tal probar diferentes generos y estilos de juegos, es algo que puede llegar a ser valioso en la industria. <br>"
+            "2. Los juegos de aventura son los mas populares al pasar de los tiempo, por lo tanto, es uno de los generos que puede ser importante impactar.</h3>")
 ##---------------------------Barra lateral---------------------------
 sidebar = st.sidebar
 with sidebar:
@@ -209,6 +209,7 @@ with sidebar:
     st.button("Categorias con mejor puntaje", on_click=rating)
     st.button("Jugadores totales vs activos", on_click=jugadores_totales_vs_activos)
     st.button("Distribución de géneros por año", on_click=generos_por_año)
+    st.button("Conclusiones y recomendaciones", on_click=conclusiones) 
 
     #st.markdown('Filtros de tiempo')
 ## Año de lanzamienton numero de titulos

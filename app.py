@@ -47,16 +47,18 @@ def cargar_datos():
 
 df, generos_por_juego = cargar_datos()
 
+##---------------------------Funcion cambio de pantalla---------------------------
+
+def cambiar_vista(vista_activa):
+    estados = ['inicioseccion', 'por_anio', 'por_rating', 'jugadoresactivos', 
+               'generos_por_año', 'titulo_de_juego', 'conclusiones']
+    for estado in estados:
+        st.session_state[estado] = (estado == vista_activa)
 ##---------------------------Titulo----------------------------------------
 if 'inicioseccion' not in st.session_state:
     st.session_state.inicioseccion = True
 def inicio():
-    st.session_state.inicioseccion = True
-    st.session_state.por_anio = False
-    st.session_state.por_rating = False
-    st.session_state.jugadoresactivos = False
-    st.session_state.generos_por_año = False
-    st.session_state.titulo_de_juego = False
+    cambiar_vista('inicioseccion')
 
 if st.session_state.inicioseccion:
     st.title("Analisis de Videojuegos", text_alignment="center")
@@ -65,16 +67,13 @@ if st.session_state.inicioseccion:
 
 ##---------------------------Cuerpo del proyecto---------------------------
 
+
+
 ##---------------------------Juegos por año tabla---------------------------
 if 'por_anio' not in st.session_state:
     st.session_state.por_anio = False
 def filtrar_por_fecha_lanzamiento():
-    st.session_state.por_anio = True
-    st.session_state.por_rating = False
-    st.session_state.inicioseccion = False 
-    st.session_state.jugadoresactivos = False
-    st.session_state.generos_por_año = False
-    st.session_state.titulo_de_juego = False
+    cambiar_vista('por_anio')
 
 if st.session_state.por_anio:
     with st.container():
@@ -91,12 +90,8 @@ if st.session_state.por_anio:
 if 'por_rating' not in st.session_state:
     st.session_state.por_rating = False
 def rating():
-    st.session_state.por_anio = False
-    st.session_state.por_rating = True
-    st.session_state.inicioseccion = False
-    st.session_state.jugadoresactivos = False
-    st.session_state.generos_por_año = False
-    st.session_state.titulo_de_juego = False
+    cambiar_vista('por_rating')     
+    
 if st.session_state.por_rating:
     with st.container():
         st.subheader("Top Categorias con mejor puntaje")
@@ -112,12 +107,7 @@ if st.session_state.por_rating:
 if 'jugadoresactivos' not in st.session_state:
     st.session_state.jugadoresactivos = False
 def jugadores_totales_vs_activos():
-    st.session_state.por_anio = False
-    st.session_state.por_rating = False
-    st.session_state.inicioseccion = False
-    st.session_state.jugadoresactivos = True
-    st.session_state.generos_por_año = False    
-    st.session_state.titulo_de_juego = False
+    cambiar_vista('jugadoresactivos')
 
 if st.session_state.jugadoresactivos:    
     fig = go.Figure()
@@ -132,12 +122,8 @@ if st.session_state.jugadoresactivos:
 if 'generos_por_año' not in st.session_state:
     st.session_state.generos_por_año = False
 def generos_por_año():
-    st.session_state.por_anio = False
-    st.session_state.por_rating = False
-    st.session_state.inicioseccion = False
-    st.session_state.jugadoresactivos = False
-    st.session_state.generos_por_año = True
-    st.session_state.titulo_de_juego = False
+    cambiar_vista('generos_por_año')
+    
 
 if st.session_state.generos_por_año:   
     df['generos_por_juego'] = df['generos'].str.strip("[]").str.strip("'").str.split(", ").str[0]
@@ -153,12 +139,7 @@ if 'titulo_de_juego' not in st.session_state:
     st.session_state.titulo_de_juego = False
 
 def titulo_de_juego():
-    st.session_state.por_anio = False
-    st.session_state.por_rating = False
-    st.session_state.inicioseccion = False
-    st.session_state.jugadoresactivos = False
-    st.session_state.generos_por_año = False
-    st.session_state.titulo_de_juego = True
+    cambiar_vista('titulo_de_juego')
 
 if st.session_state.titulo_de_juego:  
     st.subheader("Información detallada del juego")
@@ -176,13 +157,7 @@ if 'conclusiones' not in st.session_state:
     st.session_state.conclusiones = False
 
 def conclusiones():
-    st.session_state.por_anio = False
-    st.session_state.por_rating = False
-    st.session_state.inicioseccion = False
-    st.session_state.jugadoresactivos = False
-    st.session_state.generos_por_año = False
-    st.session_state.titulo_de_juego = False
-    st.session_state.conclusiones = True
+    cambiar_vista('conclusiones')
 
 if st.session_state.conclusiones:  
     st.subheader("Conclusiones")
